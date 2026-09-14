@@ -21,20 +21,45 @@ You can turn off the reminder with `wmap --i-agree` once you understand this.
 
 ## Installation
 
-wmap needs Python 3 and a few packages to run.
+wmap needs Python 3 and a few packages to run. Clone the repository first, either way:
 
-1. Clone the repository:
+```
+git clone https://github.com/kynorie/wmap.git
+cd wmap
+```
+
+### Option 1: install.sh (recommended)
+
+This sets up a virtual environment for you and lets you run `wmap` as a normal command, instead of typing `python3 wmap.py` every time.
+
+1. Make the script runnable, then run it:
    ```
-   git clone https://github.com/kynorie/wmap.git
-   cd wmap
+   chmod +x install.sh
+   ./install.sh
    ```
 
-2. Install the required packages:
+2. Run wmap:
+   ```
+   wmap <target>
+   ```
+
+   For example:
+   ```
+   wmap 127.0.0.1
+   ```
+
+If the script tells you to add something to your PATH, follow that instruction before running the command above.
+
+### Option 2: pip
+
+Use this if you would rather manage packages yourself, or install.sh does not work for you.
+
+1. Install the required packages:
    ```
    pip install -r requirements.txt --break-system-packages
    ```
 
-3. Run wmap:
+2. Run wmap:
    ```
    python3 wmap.py <target>
    ```
