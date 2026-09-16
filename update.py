@@ -14,7 +14,7 @@ except ImportError:
 GITHUB_REPO = "kynorie/wmap"
 RELEASES_API = f"https://api.github.com/repos/{GITHUB_REPO}/releases/latest"
 
-CURRENT_VERSION = 1  # REMEMBER TO BUMP THIS !!!!!!!!!!!!!!!!!!!
+CURRENT_VERSION = 2 # REMEMBER TO BUMP THIS !!!!!!!!!!!!!!!!!!!
 
 
 def get_latest_release_tag(timeout: float = 8.0) -> str | None:
