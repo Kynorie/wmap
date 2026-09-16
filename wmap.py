@@ -81,36 +81,45 @@ def run_scan(target: str, active: bool, wordlist_path: str | None) -> None:
         agreed = config.has_agreed()
         proceed = notices.confirm_scan(target, agreed=agreed)
         if not proceed:
-            print("Scan cancelled.")
+            print("[-] Cancelled Search.")
             return
 
-    results = []
+    try:
+        if is_local:
+            print("[+] Searching for local websites..")
+        else:
+            print("[+] Searching for websites..")
 
-    if is_local:
-        host_str = target.split("/")[0]
-        open_ports = local.scan_local_ports(host_str, local.COMMON_LOCAL_PORTS)
+        results = []
 
-        for port in open_ports:
-            title = local.get_local_title(host_str, port)
-            results.append({
-                "host": f"{host_str}:{port}",
-                "type": "local",
-                "title": title,
-                "domain_age": None,
-                "cert": None,
-            })
-    else:
-        wordlist = load_wordlist(wordlist_path) if wordlist_path else None
-        hosts = discovery.discover(target, active=active, wordlist=wordlist)
+        if is_local:
+            host_str = target.split("/")[0]
+            open_ports = local.scan_local_ports(host_str, local.COMMON_LOCAL_PORTS)
 
-        for host in hosts:
-            age = whois.get_domain_age(host)
-            results.append({
-                "host": host,
-                "type": "public",
-                "domain_age": age,
-                "cert": None,
-            })
+            for port in open_ports:
+                title = local.get_local_title(host_str, port)
+                results.append({
+                    "host": f"{host_str}:{port}",
+                    "type": "local",
+                    "title": title,
+                    "domain_age": None,
+                    "cert": None,
+                })
+        else:
+            wordlist = load_wordlist(wordlist_path) if wordlist_path else None
+            hosts = discovery.discover(target, active=active, wordlist=wordlist)
+
+            for host in hosts:
+                age = whois.get_domain_age(host)
+                results.append({
+                    "host": host,
+                    "type": "public",
+                    "domain_age": age,
+                    "cert": None,
+                })
+    except KeyboardInterrupt:
+        print("\n[-] Cancelled Search.")
+        return
 
     output.save_results(target, is_local, results)
 
@@ -148,12 +157,20 @@ def main() -> None:
         parser.print_help()
         return
 
+    target = local.clean_target(args.target)
+    if local.looks_like_broken_ip(target):
+        print("[-] Invalid target")
+        return
+
     if config.is_first_run():
         notices.show_first_run_notice()
         config.save_config(config.load_config())
 
-    run_scan(args.target, active=args.active, wordlist_path=args.wordlist)
+    run_scan(target, active=args.active, wordlist_path=args.wordlist)
 
 
 if __name__ == "__main__":
-    main()
+    try:
+        main()
+    except KeyboardInterrupt:
+        print("\n[-] Cancelled Search.")
