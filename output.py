@@ -75,13 +75,13 @@ def format_results(data: dict, deep: bool = False) -> str:
     is_local = data.get("is_local", False)
 
     if not results:
-        return "No websites found."
+        return "[-] No websites found"
 
     lines = []
     count = len(results)
-    label = "local website" if is_local else "Website"
+    label = "local website" if is_local else "website"
     plural = "s" if count != 1 else ""
-    lines.append(f"Found {count} {label}{plural}!")
+    lines.append(f"[+] Found {count} {label}{plural}")
     lines.append("")
 
     for entry in results:
@@ -89,25 +89,25 @@ def format_results(data: dict, deep: bool = False) -> str:
 
         if entry.get("type") == "local":
             title = entry.get("title", "Unknown service")
-            lines.append(f"{host} ({title})")
+            lines.append(f"[+] {host} ({title})")
         else:
             age = entry.get("domain_age")
             if age:
-                lines.append(f"{host} (Registered in {age['registered'][:4]}, {age['years_ago']} years ago)")
+                lines.append(f"[+] {host} (Registered in {age['registered'][:4]}, {age['years_ago']} years ago)")
             else:
-                lines.append(f"{host} (Registration date unavailable)")
+                lines.append(f"[+] {host} (Registration date unavailable)")
 
         if deep and entry.get("cert"):
             cert = entry["cert"]
-            lines.append(f"  Subject: {cert['subject']}")
-            lines.append(f"  Issuer: {cert['issuer']}")
-            lines.append(f"  Valid: {cert['valid_from']} to {cert['valid_until']}")
+            lines.append(f"    Subject: {cert['subject']}")
+            lines.append(f"    Issuer: {cert['issuer']}")
+            lines.append(f"    Valid: {cert['valid_from']} to {cert['valid_until']}")
             if cert.get("expired"):
-                lines.append(f"  ⚠ EXPIRED")
+                lines.append(f"    ⚠ EXPIRED")
             else:
-                lines.append(f"  ({cert['days_remaining']} days remaining)")
+                lines.append(f"    ({cert['days_remaining']} days remaining)")
             if cert.get("san"):
-                lines.append(f"  SANs: {', '.join(cert['san'])}")
+                lines.append(f"    SANs: {', '.join(cert['san'])}")
             lines.append("")
 
     return "\n".join(lines)
