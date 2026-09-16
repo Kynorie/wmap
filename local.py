@@ -11,13 +11,42 @@ LOCAL_NETWORKS = [
 ]
 
 
-def is_local_target(target: str) -> bool:
+IP_SHAPE_RE = re.compile(r"^\d{1,3}\.\d{1,3}\.\d{1,3}\.")
+
+
+def clean_target(raw: str) -> str:
+    cleaned = raw.strip()
+    cleaned = cleaned.strip("'\"")
+    cleaned = cleaned.strip()
+    cleaned = re.sub(r"^https?://", "", cleaned, flags=re.IGNORECASE)
+
+    if "/" in cleaned:
+        head, tail = cleaned.split("/", 1)
+        if tail.isdigit() and int(tail) <= 128:
+            cleaned = f"{head}/{tail}"
+        else:
+            cleaned = head
+
+    cleaned = cleaned.rstrip(",;'\"")
+    return cleaned
+
+
+def parse_ip_network(target: str) -> ipaddress.IPv4Network | ipaddress.IPv6Network | None:
     try:
         if "/" in target:
-            network = ipaddress.ip_network(target, strict=False)
-        else:
-            network = ipaddress.ip_network(f"{target}/32", strict=False)
+            return ipaddress.ip_network(target, strict=False)
+        return ipaddress.ip_network(f"{target}/32", strict=False)
     except ValueError:
+        return None
+
+
+def looks_like_broken_ip(target: str) -> bool:
+    return IP_SHAPE_RE.match(target) is not None and parse_ip_network(target) is None
+
+
+def is_local_target(target: str) -> bool:
+    network = parse_ip_network(target)
+    if network is None:
         return False
 
     return any(
