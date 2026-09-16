@@ -31,7 +31,7 @@ def confirm_scan(target: str, agreed: bool) -> bool:
     try:
         response = input(f"Continue scanning {target}? [Y/N] ").strip().lower()
     except (EOFError, KeyboardInterrupt):
-        print("\nAborted.")
+        print()
         return False
 
     return response == "y"
